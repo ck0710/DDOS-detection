@@ -1,0 +1,77 @@
+/* 기본 스타일 */
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f9;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+}
+
+/* VPN 컨테이너 스타일 */
+.vpn-container {
+    background-color: #ffffff;
+    border-radius: 15px;
+    padding: 30px;
+    width: 320px;
+    text-align: center;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+/* 제목 스타일 */
+h1 {
+    color: #4a90e2;
+    font-size: 1.5rem;
+    margin-top: 0;
+}
+
+/* VPN 상태 메시지 */
+.vpn-status {
+    margin: 20px 0;
+    font-size: 1rem;
+    color: #666;
+}
+
+/* 스톱워치 스타일 */
+.stopwatch {
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #4a90e2;
+    margin: 10px 0;
+}
+
+/* VPN 버튼 스타일 */
+.vpn-button {
+    width: 120px;
+    height: 120px;
+    border: none;
+    border-radius: 50%;
+    background-color: #4a90e2;
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.vpn-button:hover {
+    background-color: #357abd;
+}
+
+.vpn-button.active {
+    background-color: #e94e77; /* 모니터링 활성화 시 색상 변경 */
+}
+
+/* 결과 섹션 */
+.vpn-result-section {
+    margin-top: 20px;
+}
+
+.vpn-result-section img {
+    max-width: 100%;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    margin-top: 10px;
+}

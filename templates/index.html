@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traffic Monitoring</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="vpn-container">
+        <h1>Traffic Monitoring</h1>
+        
+        <!-- 상태 메시지 및 스톱워치 -->
+        <div class="vpn-status" id="status">Press "ON" to start monitoring</div>
+        <div class="stopwatch" id="stopwatch">00:00</div>
+
+        <!-- ON/OFF 버튼 -->
+        <button id="monitorButton" class="vpn-button" onclick="toggleMonitoring()">ON</button>
+
+        <!-- 트래픽 분석 결과 영역 -->
+        <div id="resultSection" class="vpn-result-section" style="display: none;">
+            <h2>Traffic Analysis</h2>
+            <img id="trafficImage" src="" alt="Traffic Analysis">
+            <div id="alertMessage" style="display: none; color: red; font-weight: bold;">
+                DDoS detected! This window will close in 5 seconds.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let monitoring = false;
+        let stopwatchInterval;
+        let seconds = 0;
+
+        // 모니터링 시작/중지
+        function toggleMonitoring() {
+            const monitorButton = document.getElementById("monitorButton");
+            const statusElement = document.getElementById("status");
+            monitoring = !monitoring;
+
+            if (monitoring) {
+                monitorButton.innerHTML = "OFF";
+                monitorButton.classList.add("active");
+                statusElement.innerHTML = "Traffic monitoring started. Training in progress...";
+                statusElement.style.color = "#4a90e2";
+                
+                fetch('/start-monitoring', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log(data.status);
+                        startStopwatch();
+                        updateTraffic(); // 실시간 그래프 업데이트 시작
+                    });
+            } else {
+                monitorButton.innerHTML = "ON";
+                monitorButton.classList.remove("active");
+                statusElement.innerHTML = "Monitoring stopped";
+                statusElement.style.color = "red";
+                clearInterval(stopwatchInterval);
+                resetStopwatch();
+            }
+        }
+
+        // 스톱워치 시작
+        function startStopwatch() {
+            seconds = 0;
+            stopwatchInterval = setInterval(() => {
+                seconds++;
+                updateStopwatch();
+
+                if (seconds === 60) { // 1분 후 학습 완료 메시지
+                    document.getElementById("status").innerHTML = "Training complete. Starting DDoS protection.";
+                    document.getElementById("status").style.color = "#28a745";
+                }
+            }, 1000);
+        }
+
+        // 스톱워치 시간 업데이트
+        function updateStopwatch() {
+            const minutes = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const secs = (seconds % 60).toString().padStart(2, '0');
+            document.getElementById("stopwatch").innerText = `${minutes}:${secs}`;
+        }
+
+        // 스톱워치 초기화
+        function resetStopwatch() {
+            clearInterval(stopwatchInterval);
+            document.getElementById("stopwatch").innerText = "00:00";
+            seconds = 0;
+        }
+
+        // 실시간 트래픽 업데이트
+        function updateTraffic() {
+            fetch('/update-traffic')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('trafficImage').src = 'data:image/png;base64,' + data.plot_url;
+                    document.getElementById("resultSection").style.display = "block";
+
+                    // 경고 발생 시 알림과 셧다운
+                    if (data.alert) {
+                        document.getElementById("alertMessage").style.display = "block"; // 경고 메시지 표시
+                        document.getElementById("status").innerHTML = "DDoS detected! Closing in 5 seconds...";
+                        document.getElementById("status").style.color = "red";
+                        setTimeout(() => window.close(), 5000); // 5초 후 창 닫기
+                    }
+
+                    if (monitoring && !data.alert) {
+                        setTimeout(updateTraffic, 1000); // 1초마다 갱신
+                    }
+                });
+        }
+    </script>
+</body>
+</html>
